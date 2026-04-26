@@ -19,8 +19,8 @@ CREATE TABLE produtos (
 
 CREATE TABLE compra (
   id INT NOT NULL AUTO_INCREMENT,
-  id_produto INT,
-  id_cliente INT,
+  id_produto INT NOT NULL,
+  id_cliente INT NOT NULL,
   data_hora DATETIME,
   PRIMARY KEY (id),
   FOREIGN KEY (id_produto) REFERENCES produtos(id),

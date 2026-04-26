@@ -1,5 +1,6 @@
 package com.inventorycontrol.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "produto")
+@Table(name = "produtos")
 @Getter
 @Setter
 @Builder
@@ -25,9 +26,9 @@ import java.util.List;
 @AllArgsConstructor
 public class Produto {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "nome")
     private String nome;
@@ -41,6 +42,7 @@ public class Produto {
     @Column(name = "descricao")
     private String descricao;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "produto")
     private List<Compra> compras = new ArrayList<>();
 }
