@@ -1,7 +1,6 @@
 package com.inventorycontrol.controller;
 
 import com.inventorycontrol.dto.cliente.ClienteRequestDTO;
-import com.inventorycontrol.model.Cliente;
 import com.inventorycontrol.service.ClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.inventorycontrol.dto.cliente.ClienteResponseDTO;
 
 import java.util.List;
 
@@ -26,22 +26,22 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<Cliente> add(@RequestBody ClienteRequestDTO clienteRequestDTO) {
+    public ResponseEntity<ClienteResponseDTO> add(@RequestBody ClienteRequestDTO clienteRequestDTO) {
         return ResponseEntity.ok(this.clienteService.add(clienteRequestDTO));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> getById(@PathVariable(name = "id") Integer id) {
+    public ResponseEntity<ClienteResponseDTO> getById(@PathVariable(name = "id") Integer id) {
         return ResponseEntity.ok(clienteService.getById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> getAll() {
+    public ResponseEntity<List<ClienteResponseDTO>> getAll() {
         return ResponseEntity.ok(clienteService.getAll());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cliente> update(@PathVariable(name = "id") Integer id, @RequestBody ClienteRequestDTO clienteRequestDTO) {
+    public ResponseEntity<ClienteResponseDTO> update(@PathVariable(name = "id") Integer id, @RequestBody ClienteRequestDTO clienteRequestDTO) {
         return ResponseEntity.ok(this.clienteService.update(id, clienteRequestDTO));
     }
 

@@ -5,6 +5,7 @@ import com.inventorycontrol.model.Produto;
 import com.inventorycontrol.repository.ProdutoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import com.inventorycontrol.dto.produto.ProdutoResponseDTO;
 
 import java.util.List;
 
@@ -18,37 +19,56 @@ public class ProdutoService {
     }
 
     @Transactional
-    public Produto add(ProdutoRequestDTO produtoRequestDTO) {
+    public ProdutoResponseDTO add(ProdutoRequestDTO produtoRequestDTO) {
         Produto produto = new Produto();
         produto.setNome(produtoRequestDTO.nome());
         produto.setQuantidade(produtoRequestDTO.quantidade());
         produto.setPreco(produtoRequestDTO.preco());
         produto.setDescricao(produtoRequestDTO.descricao());
 
-        return this.produtoRepository.save(produto);
+        Produto salvo = this.produtoRepository.save(produto);
+        return toDTO(salvo);
     }
 
-    public Produto getById(Integer id) {
-        return this.produtoRepository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+    public ProdutoResponseDTO getById(Integer id) {
+        Produto produto = this.produtoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+
+        return toDTO(produto);
     }
 
-    public List<Produto> getAll() {
-        return this.produtoRepository.findAll();
+    public List<ProdutoResponseDTO> getAll() {
+        return this.produtoRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     @Transactional
-    public Produto update(Integer id, ProdutoRequestDTO produtoRequestDTO) {
-        Produto produtoAtualizado = this.getById(id);
+    public ProdutoResponseDTO update(Integer id, ProdutoRequestDTO produtoRequestDTO) {
+        Produto produtoAtualizado = this.produtoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
         produtoAtualizado.setNome(produtoRequestDTO.nome());
         produtoAtualizado.setQuantidade(produtoRequestDTO.quantidade());
         produtoAtualizado.setPreco(produtoRequestDTO.preco());
         produtoAtualizado.setDescricao(produtoRequestDTO.descricao());
 
-        return this.produtoRepository.save(produtoAtualizado);
+        Produto atualizado = this.produtoRepository.save(produtoAtualizado);
+        return toDTO(atualizado);
     }
 
     @Transactional
     public void delete(Integer id) {
         this.produtoRepository.deleteById(id);
+    }
+
+    private ProdutoResponseDTO toDTO(Produto produto) {
+        return new ProdutoResponseDTO(
+                produto.getId(),
+                produto.getNome(),
+                produto.getQuantidade(),
+                produto.getPreco(),
+                produto.getDescricao()
+        );
     }
 }
