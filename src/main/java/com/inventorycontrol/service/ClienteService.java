@@ -5,7 +5,6 @@ import com.inventorycontrol.model.Cliente;
 import com.inventorycontrol.repository.ClienteRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import com.inventorycontrol.dto.cliente.ClienteResponseDTO;
 
 import java.util.List;
 
@@ -19,47 +18,34 @@ public class ClienteService {
     }
 
     @Transactional
-    public ClienteResponseDTO add(ClienteRequestDTO clienteRequestDTO) {
+    public Cliente add(ClienteRequestDTO clienteRequestDTO) {
         Cliente cliente = new Cliente();
         cliente.setNome(clienteRequestDTO.nome());
 
-        Cliente salvo = this.clienteRepository.save(cliente);
-        return toDTO(salvo);
+        return this.clienteRepository.save(cliente);
     }
 
-    public ClienteResponseDTO getById(Integer id) {
-        Cliente cliente = this.clienteRepository.findById(id)
+    public Cliente getById(Integer id) {
+        return this.clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-
-        return toDTO(cliente);
     }
 
-    public List<ClienteResponseDTO> getAll() {
-        return this.clienteRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+    public List<Cliente> getAll() {
+        return this.clienteRepository.findAll();
     }
 
     @Transactional
-    public ClienteResponseDTO update(Integer id, ClienteRequestDTO clienteRequestDTO) {
+    public Cliente update(Integer id, ClienteRequestDTO clienteRequestDTO) {
         Cliente clienteAtualizado = this.clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+
         clienteAtualizado.setNome(clienteRequestDTO.nome());
 
-        Cliente atualizado = this.clienteRepository.save(clienteAtualizado);
-        return toDTO(atualizado);
+        return this.clienteRepository.save(clienteAtualizado);
     }
 
     @Transactional
     public void delete(Integer id) {
         this.clienteRepository.deleteById(id);
-    }
-
-    private ClienteResponseDTO toDTO(Cliente cliente) {
-        return new ClienteResponseDTO(
-                cliente.getId(),
-                cliente.getNome()
-        );
     }
 }

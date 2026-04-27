@@ -30,82 +30,71 @@ public class CompraService {
     }
 
     @Transactional
-    public CompraResponseDTO add(CompraRequestDTO compraRequestDTO) {
-        Cliente cliente = clienteRepository.findById(compraRequestDTO.clienteId())
+    public Compra add(CompraRequestDTO dto) {
+        Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado."));
 
-        Produto produto = produtoRepository.findById(compraRequestDTO.produtoId())
+        Produto produto = produtoRepository.findById(dto.produtoId())
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+
         decrementaEstoque(produto);
 
         Compra compra = new Compra();
         compra.setCliente(cliente);
         compra.setProduto(produto);
 
-        Compra salva = this.compraRepository.save(compra);
-        return toDTO(salva);
+        return compraRepository.save(compra);
     }
 
-    public CompraResponseDTO getById(Integer id) {
-        Compra compra = this.compraRepository.findById(id)
+    public Compra getById(Integer id) {
+        return compraRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Compra não encontrada."));
-
-        return toDTO(compra);
     }
 
-    public List<CompraResponseDTO> getAll() {
-        return this.compraRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .toList();
+    public List<Compra> getAll() {
+        return compraRepository.findAll();
     }
 
     @Transactional
-    public CompraResponseDTO update(Integer id, CompraRequestDTO compraRequestDTO) {
-        Compra compraAtualizada = this.compraRepository.findById(id)
+    public Compra update(Integer id, CompraRequestDTO dto) {
+        Compra compra = compraRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Compra não encontrada."));
-        Cliente cliente = clienteRepository.findById(compraRequestDTO.clienteId())
+
+        Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow();
 
-        Produto produtoNovo = produtoRepository.findById(compraRequestDTO.produtoId())
+        Produto novoProduto = produtoRepository.findById(dto.produtoId())
                 .orElseThrow();
-        Produto produtoAtual = compraAtualizada.getProduto();
 
-        if (!Objects.equals(produtoAtual.getId(), produtoNovo.getId())) {
-            produtoAtual.setQuantidade(produtoAtual.getQuantidade() + 1);
-            decrementaEstoque(produtoNovo);
+        Produto atual = compra.getProduto();
+
+        if (!Objects.equals(atual.getId(), novoProduto.getId())) {
+            atual.setQuantidade(atual.getQuantidade() + 1);
+            decrementaEstoque(novoProduto);
         }
 
-        compraAtualizada.setCliente(cliente);
-        compraAtualizada.setProduto(produtoNovo);
+        compra.setCliente(cliente);
+        compra.setProduto(novoProduto);
 
-        Compra atualizada = this.compraRepository.save(compraAtualizada);
-        return toDTO(atualizada);
+        return compraRepository.save(compra);
     }
 
     @Transactional
     public void delete(Integer id) {
-        Compra compra = this.compraRepository.findById(id)
+        Compra compra = compraRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Compra não encontrada."));
+
         Produto produto = compra.getProduto();
         produto.setQuantidade(produto.getQuantidade() + 1);
 
-        this.compraRepository.delete(compra);
+        compraRepository.delete(compra);
     }
 
     private void decrementaEstoque(Produto produto) {
         if (produto.getQuantidade() <= 0) {
-            throw new RuntimeException("Quantidade insuficiente em estoque para o produto informado.");
+            throw new RuntimeException("Quantidade insuficiente em estoque.");
         }
 
         produto.setQuantidade(produto.getQuantidade() - 1);
-    }
-
-    private CompraResponseDTO toDTO(Compra compra) {
-        return new CompraResponseDTO(
-                compra.getId(),
-                compra.getCliente().getId(),
-                compra.getProduto().getId()
-        );
     }
 }

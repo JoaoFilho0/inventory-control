@@ -1,17 +1,11 @@
 package com.inventorycontrol.controller;
 
 import com.inventorycontrol.dto.cliente.ClienteRequestDTO;
+import com.inventorycontrol.dto.cliente.ClienteResponseDTO;
+import com.inventorycontrol.model.Cliente;
 import com.inventorycontrol.service.ClienteService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import com.inventorycontrol.dto.cliente.ClienteResponseDTO;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,28 +20,45 @@ public class ClienteController {
     }
 
     @PostMapping
-    public ResponseEntity<ClienteResponseDTO> add(@RequestBody ClienteRequestDTO clienteRequestDTO) {
-        return ResponseEntity.ok(this.clienteService.add(clienteRequestDTO));
+    public ResponseEntity<ClienteResponseDTO> add(@RequestBody ClienteRequestDTO dto) {
+        Cliente cliente = clienteService.add(dto);
+        return ResponseEntity.ok(toDTO(cliente));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> getById(@PathVariable(name = "id") Integer id) {
-        return ResponseEntity.ok(clienteService.getById(id));
+    public ResponseEntity<ClienteResponseDTO> getById(@PathVariable Integer id) {
+        Cliente cliente = clienteService.getById(id);
+        return ResponseEntity.ok(toDTO(cliente));
     }
 
     @GetMapping
     public ResponseEntity<List<ClienteResponseDTO>> getAll() {
-        return ResponseEntity.ok(clienteService.getAll());
+        List<ClienteResponseDTO> lista = clienteService.getAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
+
+        return ResponseEntity.ok(lista);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteResponseDTO> update(@PathVariable(name = "id") Integer id, @RequestBody ClienteRequestDTO clienteRequestDTO) {
-        return ResponseEntity.ok(this.clienteService.update(id, clienteRequestDTO));
+    public ResponseEntity<ClienteResponseDTO> update(@PathVariable Integer id,
+                                                     @RequestBody ClienteRequestDTO dto) {
+        Cliente cliente = clienteService.update(id, dto);
+        return ResponseEntity.ok(toDTO(cliente));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable(name = "id") Integer id) {
-        this.clienteService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        clienteService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // 🔥 Conversão no controller
+    private ClienteResponseDTO toDTO(Cliente cliente) {
+        return new ClienteResponseDTO(
+                cliente.getId(),
+                cliente.getNome()
+        );
     }
 }
